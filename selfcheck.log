@@ -1,0 +1,68 @@
+Лог самопроверки — Практическая работа № 8 (файловая почта)
+Дата: 2026-11-24
+Проверки выполнялись в рабочей папке проекта; файлы для GitHub скопированы в practice-08-file-mail без изменений.
+
+> python file_exchange_starter.py prepare
+Создана учебная структура: C:\Users\адм\Documents\Проект по умолчанию\workspace
+
+> python file_exchange_starter.py scan --pattern "*.txt"
+[
+  {
+    "name": "log.txt",
+    "relative_path": "log.txt",
+    "size_bytes": 37,
+    "modified": "2026-11-24T14:27:27"
+  },
+  {
+    "name": "notes.txt",
+    "relative_path": "notes.txt",
+    "size_bytes": 84,
+    "modified": "2026-11-24T14:27:27"
+  },
+  {
+    "name": "task.txt",
+    "relative_path": "nested\\task.txt",
+    "size_bytes": 55,
+    "modified": "2026-11-24T14:27:27"
+  }
+]
+(sample.bin в список не попал — фильтр по шаблону работает)
+
+> python file_exchange_starter.py pack --file notes.txt --sender team_A --recipient team_B
+Создан пакет: C:\Users\адм\Documents\Проект по умолчанию\workspace\outbox\team_A__team_B__notes.zip
+
+> python file_exchange_starter.py receive --package "workspace/outbox/team_A__team_B__notes.zip" --recipient team_B
+Принято: C:\Users\адм\Documents\Проект по умолчанию\workspace\inbox\notes.txt
+
+> sha256(data/notes.txt), sha256(inbox/notes.txt)
+d2bc5eb722d041779bee8ea7f2e268af16fe51a89d89ef8f9946c03243d99777
+d2bc5eb722d041779bee8ea7f2e268af16fe51a89d89ef8f9946c03243d99777
+Совпадают: True
+
+> python tamper_demo.py "workspace/outbox/team_A__team_B__notes.zip"
+Создан повреждённый тестовый пакет: workspace\outbox\corrupted_team_A__team_B__notes.zip
+Исходный пакет не изменён.
+
+> python file_exchange_starter.py receive --package "workspace/outbox/corrupted_team_A__team_B__notes.zip" --recipient team_B
+Traceback (most recent call last):
+  File "file_exchange_starter.py", line 166, in main
+    print("Принято:", receive_package(Path(args.package), INBOX, args.recipient))
+  File "file_exchange_starter.py", line 125, in receive_package
+    raise ValueError("Контрольная сумма SHA-256 не совпадает")
+ValueError: Контрольная сумма SHA-256 не совпадает
+Exit code: 1 — отказ как ожидалось; новых файлов в inbox нет.
+
+> python file_exchange_starter.py report
+Отчёт: C:\Users\адм\Documents\Проект по умолчанию\workspace\report.csv
+
+> python -m unittest test_selfcheck.py -v
+test_01_scan_pattern (test_selfcheck.FileExchangeChecks.test_01_scan_pattern) ... ok
+test_02_sha256 (test_selfcheck.FileExchangeChecks.test_02_sha256) ... ok
+test_03_exchange (test_selfcheck.FileExchangeChecks.test_03_exchange) ... ok
+test_04_corrupted_file_is_rejected (test_selfcheck.FileExchangeChecks.test_04_corrupted_file_is_rejected) ... ok
+test_05_csv_report (test_selfcheck.FileExchangeChecks.test_05_csv_report) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.057s
+
+OK

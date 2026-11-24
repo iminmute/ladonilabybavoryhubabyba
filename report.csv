@@ -1,0 +1,5 @@
+﻿name,relative_path,size_bytes,modified
+log.txt,log.txt,37,2026-11-24T14:27:27
+notes.txt,notes.txt,84,2026-11-24T14:27:27
+sample.bin,sample.bin,5,2026-11-24T14:27:27
+task.txt,nested\task.txt,55,2026-11-24T14:27:27
